@@ -37,19 +37,32 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.authenticateUser = (req, res) => {
-    const title = req.query.title;
-    var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+    const userID = req.user_ID;
+    const pWord=req.password;
+    const role="Manager"
 
-    Tutorial.findAll({ where: condition })
+    User.findOne({
+        attributes: ['user_ID', 'role', 'username', 'password'],
+        where: {
+            user_ID: userID,password: pWord,role:role
+        }
+    })
         .then(data => {
-            res.send(data);
+
+            if (data) {
+                res.send("login Successful");
+            } else {
+                res.status(404).send({
+                    message: `Username Or Password Incorrect`
+                });
+            }
         })
         .catch(err => {
             res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tutorials."
+                message: "Error Occurred try again later"
             });
         });
+
 };
 
 exports.findOne = (req, res) => {
@@ -59,7 +72,7 @@ exports.findOne = (req, res) => {
         where: { user_ID: userID }
     })
         .then(data => {
-            console.log(data);
+
             if (data) {
                 res.send(data);
             } else {
