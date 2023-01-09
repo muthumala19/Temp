@@ -1,27 +1,13 @@
 const express = require('express')
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const db = require("./models");
 
 const app = express()
 const port = 3000
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    port:3306,
-    user: 'root',
-    password: '12345678',
-    database: 'bank',
-});
 
 app.use(bodyParser.json());
 
-connection.connect(function(err) {
-    if (err) {
-        return console.error('error: ' + err.message);
-    }
-    console.log('Connected to the MySQL server.');
-});
-const db = require("./models");
 db.sequelize.sync()
     .then(() => {
         console.log("Synced db.");
@@ -30,19 +16,16 @@ db.sequelize.sync()
         console.log("Failed to sync db: " + err.message);
     });
 
-
+const controller=require("./controller/user.controller");
 app.get('/', (request, response) => {
-    response.send('Hello World!')
+    controller.authenticateUser(request.body,response);
+    // response.send('login page')
 })
 
-
-app.post('/user', (request, response) => {
+app.post('/login', (request, response) => {
     console.log(request.body)
     response.send({ name:"user1", email:"AAAAAAAAAAAAAAAAA@gmail.com"})
 })
-
-
-
 
 
 
